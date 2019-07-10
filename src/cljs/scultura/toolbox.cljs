@@ -96,7 +96,7 @@
            ws2 (/ ws 2)
            rows 3
            hrow (/ height rows)
-           hrow2 (/ h3 2)]
+           hrow2 (/ hrow 2)]
        (for [r (range rows)]
          (for [i (range bars)]
            [:line :x1 (* i ws) :x2 (* i ws) :y1 (* r hrow) :y2 (+ (* r hrow) hrow2) :style style]))))))

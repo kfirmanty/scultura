@@ -41,8 +41,7 @@
   [:g {:on-click on-click} el])
 
 (defn main-panel []
-  (let [playing? @(re-frame/subscribe [::subs/playing?])
-        width 500
+  (let [width 500
         height 500
         elements @(re-frame/subscribe [::subs/elements])
         element-w 100
@@ -53,23 +52,10 @@
     [:article
      [:h1 "Musical Paint"]
      [:p {:class "subtitle"} "based on composition by Boguslaw Schaeffer"]
-     #_[:div {:on-click #(re-frame/dispatch (if playing?
-                                              [::events/stop]
-                                              [::events/play]))
-              :style {:border-style :solid
-                      :border-width :thin
-                      :display :inline-block}}
-        (if playing?
-          "Stop playing"
-          "Start playing")]
      [:div {:style {:display "flex"
                     :flex-direction "row"}}
       [toolbox {:style {:flex 3}}]
-      [:div {:style {:flex 7
-                     ;;:border-style :solid
-                     ;;:border-width :thin
-                     ;;:display :inline-block
-                     }}
+      [:div {:style {:flex 7}}
        [:svg {:width width :height height
               :id "paint"
               :on-click (fn [e]
