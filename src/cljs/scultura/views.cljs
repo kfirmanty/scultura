@@ -3,17 +3,22 @@
             [scultura.subs :as subs]
             [scultura.events :as events]
             [clojure.string :as s]
-            [scultura.toolbox :as t]))
+            [scultura.toolbox :as t]
+            [tonejs]))
 
 (def tool-type->draw-fn
-  {:short-hit (t/rect 2 2)
-   :block (t/rect 1.5 1.5)
-   :rect-cluster (t/rect-cluster)
-   :rect-bars (t/rect-bars)
-   :reverb-reverb (t/reverb-reverb)
-   :regular-multitones (t/regular-multitones)
-   :multiple-rapid-glissando (t/multiple-rapid-glissando)
-   :eraser (t/eraser)})
+  (array-map :short-hit (t/rect 2 2)
+             :block (t/rect 1.5 1.5)
+             :dissonant-block (t/rect-cluster)
+             :strong-long-atonal-hits (t/rect-bars)
+             :reverb-reverb (t/reverb-reverb)
+             :regular-multitones (t/regular-multitones)
+             :multiple-rapid-glissando (t/multiple-rapid-glissando)
+             :two-tones-microtonal-blob (t/two-tones-microtonal-blob)
+             :quiet-tiny-impulses (t/quiet-tiny-impulses)
+             :short-decay-block (t/short-decay-block)
+             :glitch-electronics (t/glitch-electronics)
+             :eraser (t/eraser)))
 
 (defn toolbox-entry [tool-type]
   (let [width 25
@@ -48,10 +53,12 @@
         element-h 100
         x-off (/ element-w 2)
         y-off (/ element-h 2)
-        current-tool @(re-frame/subscribe [::subs/tool])]
+        current-tool @(re-frame/subscribe [::subs/tool])
+        playing? @(re-frame/subscribe [::subs/playing?])
+        tone-js-initialized?  @(re-frame/subscribe [::subs/tone-js-initialized?])]
     [:article
      [:h1 "Musical Paint"]
-     [:p {:class "subtitle"} "based on composition by Boguslaw Schaeffer"]
+     [:p {:class "subtitle"} "based on composition by Bogusław Schaeffer"]
      [:div {:style {:display "flex"
                     :flex-direction "row"}}
       [toolbox {:style {:flex 3}}]
@@ -73,4 +80,16 @@
                 y (- y y-off)]
             (attach-on-click ((tool-type->draw-fn tool) element-w element-h x y)
                              #(when (= current-tool :eraser)
-                                (re-frame/dispatch [::events/remove-element id])))))]]]]))
+                                (re-frame/dispatch [::events/remove-element id])))))]]]
+     [:div {:on-click #(do (when-not tone-js-initialized?
+                             (println "initializing tonejs context")
+                             (.resume js/Tone.context))
+                         (re-frame/dispatch (if playing?
+                                                [::events/stop!]
+                                                [::events/play!])))
+            :style {:border-style :solid
+                    :border-width :thin
+                    :display :inline-block}}
+      (if playing?
+        "Stop playing"
+        "Start playing")]]))

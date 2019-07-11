@@ -8,7 +8,7 @@
 (re-frame/reg-event-fx
  ::initialize-db
  (fn-traced [_ _]
-            {:db db/default-db}))
+            {:db (merge db/default-db {:synth (synth/init-synths!)})}))
 
 (re-frame/reg-event-db
  ::set-tool
@@ -24,3 +24,32 @@
  ::remove-element
  (fn [db [_ id]]
    (db/remove-element db id)))
+
+(re-frame/reg-event-fx
+ ::play!
+ (fn [{:keys [db]} _]
+   {:db (-> db (assoc :playing? true)
+            db/set-tone-js-initialized)
+    :dispatch-later [{:ms 0 :dispatch [::tick! 0]}]}))
+
+(re-frame/reg-event-db
+ ::stop!
+ (fn [db _]
+   (assoc db :playing? false)))
+
+(re-frame/reg-event-fx
+ ::tick!
+ (fn [{:keys [db]} [_ time]]
+   (let [elements (db/elements db)
+         steps-per-tick (db/steps-per-tick db)
+         to-play (filter #(and (>= (int (:y %)) time)
+                               (< (int (:y %)) (+ time steps-per-tick))) elements)]
+     (if (db/playing? db)
+       (do
+         (doseq [el to-play]
+           (println "triggering" (:tool el))
+           (synth/play-note! (db/synth db (:tool el))))
+         {:db db
+          :dispatch-later [{:ms 250
+                            :dispatch [::tick! (mod (+ time steps-per-tick) 500)]}]})
+       {:db  db}))))

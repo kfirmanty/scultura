@@ -22,18 +22,26 @@
                 :style style
                 :transform (->transform x-off y-off)}])))))
 
+(def rect-cluster-points
+  (for [i (range 5)]
+    [:rect {:width (rand)
+            :height (rand)
+            :x (rand)
+            :y (rand)
+            :style style}]))
+
 (defn rect-cluster []
   (fn draw
     ([width height]
      (draw width height 0 0))
     ([width height x-off y-off]
-     (for [i (range 5)]
-       [:rect {:width (rand width)
-               :height (rand height)
-               :x (rand width)
-               :y (rand height)
-               :style style
-               :transform (->transform x-off y-off)}]))))
+     (map (fn [[t m]]
+            [t (-> m
+                   (assoc :transform (->transform x-off y-off))
+                   (update :width * width)
+                   (update :height * height)
+                   (update :x * width)
+                   (update :y * height))]) rect-cluster-points))))
 
 (defn rect-bars []
   (fn draw
@@ -87,19 +95,98 @@
          [:polygon {:points p :style style :transform (->transform x-off y-off)}])))))
 
 (defn multiple-rapid-glissando []
+  (fn draw
+    ([width height]
+     (draw width height 0 0))
+    ([width height x-off y-off]
+     (let [bars 10
+           ws (/ width bars)
+           rows 3
+           hrow (/ height rows)
+           hrow2 (/ hrow 2)]
+       (for [r (range rows)]
+         (for [i (range bars)]
+           (let [x (* i ws)]
+             [:line {:x1 x :x2 x
+                     :y1 (* r hrow) :y2 (+ (* r hrow) hrow2)
+                     :style style :transform (->transform x-off y-off)}])))))))
+
+(defn two-tones-microtonal-blob []
     (fn draw
     ([width height]
      (draw width height 0 0))
     ([width height x-off y-off]
      (let [bars 10
            ws (/ width bars)
-           ws2 (/ ws 2)
-           rows 3
-           hrow (/ height rows)
-           hrow2 (/ hrow 2)]
-       (for [r (range rows)]
-         (for [i (range bars)]
-           [:line :x1 (* i ws) :x2 (* i ws) :y1 (* r hrow) :y2 (+ (* r hrow) hrow2) :style style]))))))
+           hw (/ width 2)
+           hh (/ height 2)]
+       (for [i (range bars)]
+         (let [x (* i ws)
+               dist (Math/abs (- x hw))
+               len (- hh dist)]
+           [:line {:x1 x :x2 x
+                   :y1 (+ hh len) :y2 (- hh len)
+                   :style style :transform (->transform x-off y-off)}]))))))
+
+(def quiet-tiny-impulses-points
+  (let [circles 5]
+    (apply concat (for [c (range circles)]
+                    (let [per-circle (- 50 (* c 10))]
+                      (for [i (range per-circle)]
+                        (let [angle (-> (/ Math/PI per-circle) (* i) (* 2))
+                              r (- 0.5 (/ c circles 2))
+                              x (-> angle Math/cos (* r))
+                              y (-> angle Math/sin (* r))]
+                          [:rect {:x (+ 0.5 x)
+                                  :y (+ 0.5 y)
+                                  :width 1
+                                  :height 1
+                                  :style style}])))))))
+
+(defn quiet-tiny-impulses []
+  (fn draw
+    ([width height]
+     (draw width height 0 0))
+    ([width height x-off y-off]
+     (map (fn [[t m]]
+            [t (-> m
+                   (assoc :transform (->transform x-off y-off))
+                   (update :x * width)
+                   (update :y * height))]) quiet-tiny-impulses-points))))
+
+(defn short-decay-block []
+  (fn draw
+    ([width height]
+     (draw width height 0 0))
+    ([width height x-off y-off]
+     (let [ww (/ width 2)
+           hh (/ height 2)
+           p (->polygon-string [[0 0] [ww hh] [width 0]])]
+       [:polygon {:points p :style style :transform (->transform x-off y-off)}]))))
+
+(defn glitch-electronics []
+  (fn draw
+    ([width height]
+     (draw width height 0 0))
+    ([width height x-off y-off]
+     (let [hw (/ width 2)
+           hh (/ height 2)
+           div-x 2
+           bars 3
+           step (/ height bars)
+           yh (/ step 2)]
+       (cons [:rect {:width hw
+                     :height height
+                     :x (- hw (/ hw div-x))
+                     :y 0
+                     :style style
+                     :transform (->transform x-off y-off)}]
+             (for [i (range bars)]
+               (let [y (+ (* step i) (/ yh 2))]
+                 [:line {:x1 hw :y1 y
+                         :x2 hw :y2 (+ y yh)
+                         :style style
+                         :transform (->transform x-off y-off)}])))))))
 
 (defn eraser []
   (fn [width height]
