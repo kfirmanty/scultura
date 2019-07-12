@@ -1,7 +1,6 @@
-# harmony-series-no-1-generator
+# scultura 
 
-Generator based on `Sometimes [harmony series no. 1] by Michael Pisaro` and inspired by [https://github.com/jellea/20-minutes-for-a-clojure-speaker](https://github.com/jellea/20-minutes-for-a-clojure-speaker)
-
+Interactive music sheet based on works of Bogusław Schaeffer (`Symfonia - Muzyka Elektroniczna`) to be specific. Users can place various objects (defined in the sheet for Symfonia) and then play music generated from the sheet and change it on the fly.
 ## Production Build
 
 
