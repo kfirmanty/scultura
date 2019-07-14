@@ -25,11 +25,15 @@
 (defn synth [db tool]
   (get-in db [:synth tool]))
 
+(defn synth-for-tool [db tool]
+  (let [tool-synths (synth db tool)]
+    (nth tool-synths (-> tool-synths count rand-int))))
+
 (defn playing? [db]
   (:playing? db))
 
 (defn set-tone-js-initialized [db]
-  (assoc db :tone-js-initalized? true))
+  (assoc db :tone-js-initialized? true))
 
 (defn tone-js-initialized? [db]
   (:tone-js-initialized? db))

@@ -18,7 +18,7 @@
 (re-frame/reg-event-db
  ::canvas-click
  (fn [db [_ x y]]
-   (db/add-element db {:x x :y y :tool (db/tool db) :id (random-uuid)})))
+   (db/add-element db {:x x :y y :tool (db/tool db) :synth (db/synth-for-tool db (db/tool db)) :id (random-uuid)})))
 
 (re-frame/reg-event-db
  ::remove-element
@@ -48,7 +48,7 @@
        (do
          (doseq [el to-play]
            (println "triggering" (:tool el))
-           (synth/play-note! (db/synth db (:tool el))))
+           (synth/play-note! (:synth el)))
          {:db db
           :dispatch-later [{:ms 250
                             :dispatch [::tick! (mod (+ time steps-per-tick) 500)]}]})
