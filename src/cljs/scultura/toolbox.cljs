@@ -24,11 +24,11 @@
 
 (def rect-cluster-points
   (for [i (range 5)]
-    [:rect {:width (rand)
-            :height (rand)
-            :x (rand)
-            :y (rand)
-            :style style}]))
+    ^{:key (str "rect-cluter-points"i)} [:rect {:width (rand)
+                                                :height (rand)
+                                                :x (rand)
+                                                :y (rand)
+                                                :style style}]))
 
 (defn rect-cluster []
   (fn draw
@@ -63,8 +63,8 @@
                      :transform (->transform x-off y-off)}]
              (for [i (range bars)]
                (let [x (+ (- hw (/ hw div-x)) (* i (/ hw bars)))]
-                 [:line {:x1 x :y1 y :x2 x :y2 (+ y rh)
-                         :style style :transform (->transform x-off y-off)}])))))))
+                 ^{:key (str "rect-bars-line" i)} [:line {:x1 x :y1 y :x2 x :y2 (+ y rh)
+                                                          :style style :transform (->transform x-off y-off)}])))))))
 
 (defn reverb-reverb []
   (fn draw
@@ -76,8 +76,8 @@
            x (/ width 2)]
        (for [i (range lines-num)]
          (let [y (* i (* 2 lh))]
-           [:line {:x1 x :x2 x :y1 y :y2 (+ y lh)
-                   :style style :transform (->transform x-off y-off)}]))))))
+           ^{:key (str "reverb-reverb-line" i)} [:line {:x1 x :x2 x :y1 y :y2 (+ y lh)
+                                                        :style style :transform (->transform x-off y-off)}]))))))
 
 (defn ->polygon-string [p]
   (->> p (map (partial clojure.string/join ",")) (clojure.string/join " ")))
@@ -92,7 +92,7 @@
            p1 (->polygon-string [[0 height] [w6 0] [w3 height]])
            p2 (->polygon-string [[(* 2 w3) 0] [(+ (* 2 w3) w6) height] [width 0]])]
        (for [p [p1 p2]]
-         [:polygon {:points p :style style :transform (->transform x-off y-off)}])))))
+         ^{:key (str "regular-multitones-polygon" p)} [:polygon {:points p :style style :transform (->transform x-off y-off)}])))))
 
 (defn multiple-rapid-glissando []
   (fn draw
@@ -107,12 +107,12 @@
        (for [r (range rows)]
          (for [i (range bars)]
            (let [x (* i ws)]
-             [:line {:x1 x :x2 x
-                     :y1 (* r hrow) :y2 (+ (* r hrow) hrow2)
-                     :style style :transform (->transform x-off y-off)}])))))))
+             ^{:key (str "multiple-rapid-glissando-row" x)} [:line {:x1 x :x2 x
+                                                                    :y1 (* r hrow) :y2 (+ (* r hrow) hrow2)
+                                                                    :style style :transform (->transform x-off y-off)}])))))))
 
 (defn two-tones-microtonal-blob []
-    (fn draw
+  (fn draw
     ([width height]
      (draw width height 0 0))
     ([width height x-off y-off]
@@ -124,9 +124,9 @@
          (let [x (* i ws)
                dist (Math/abs (- x hw))
                len (- hh dist)]
-           [:line {:x1 x :x2 x
-                   :y1 (+ hh len) :y2 (- hh len)
-                   :style style :transform (->transform x-off y-off)}]))))))
+           ^{:key (str "two-tones-microtonal-blob" i)} [:line {:x1 x :x2 x
+                                                               :y1 (+ hh len) :y2 (- hh len)
+                                                               :style style :transform (->transform x-off y-off)}]))))))
 
 (def quiet-tiny-impulses-points
   (let [circles 5]
@@ -137,11 +137,11 @@
                               r (- 0.5 (/ c circles 2))
                               x (-> angle Math/cos (* r))
                               y (-> angle Math/sin (* r))]
-                          [:rect {:x (+ 0.5 x)
-                                  :y (+ 0.5 y)
-                                  :width 1
-                                  :height 1
-                                  :style style}])))))))
+                          ^{:key (str "quiet-tiny-impulses-points" c i)} [:rect {:x (+ 0.5 x)
+                                                                                 :y (+ 0.5 y)
+                                                                                 :width 1
+                                                                                 :height 1
+                                                                                 :style style}])))))))
 
 (defn quiet-tiny-impulses []
   (fn draw
@@ -183,10 +183,10 @@
                      :transform (->transform x-off y-off)}]
              (for [i (range bars)]
                (let [y (+ (* step i) (/ yh 2))]
-                 [:line {:x1 hw :y1 y
-                         :x2 hw :y2 (+ y yh)
-                         :style style
-                         :transform (->transform x-off y-off)}])))))))
+                 ^{:key (str "glitch-electronics" i)} [:line {:x1 hw :y1 y
+                                                              :x2 hw :y2 (+ y yh)
+                                                              :style style
+                                                              :transform (->transform x-off y-off)}])))))))
 
 (defn eraser []
   (fn [width height]
